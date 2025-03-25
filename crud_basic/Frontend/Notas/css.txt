@@ -1,0 +1,339 @@
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background-color: #f5f5f5;
+  color: #333;
+}
+
+/* Header */
+.header {
+  background-color: #111;
+  padding: 20px 0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.container {
+  width: 90%;
+  max-width: 1200px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.logoUp {
+  text-decoration: none;
+  color: white;
+  /* O el color que prefieras */
+  font-size: 14px;
+  line-height: 1.2;
+  display: inline-block;
+}
+
+.logoDown {
+  text-decoration: none;
+  color: rgb(0, 0, 0);
+  /* O el color que prefieras */
+  font-size: 14px;
+  line-height: 1.2;
+  display: inline-block;
+}
+
+.nav a {
+  margin-left: 20px;
+  color: #fff;
+  text-decoration: none;
+  font-size: 16px;
+  padding: 8px 12px;
+  border-radius: 5px;
+  transition: background-color 0.3s;
+}
+
+.nav a:hover {
+  background-color: #e50914;
+}
+
+main {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 20px;
+}
+
+.movies-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 20px;
+}
+
+/* Contenedor para la sección completa */
+.movies-grid-section {
+  width: 90%;
+  max-width: 1200px;
+  margin: 50px auto;
+  padding: 20px 0;
+}
+
+/* Título de la cartelera */
+.titulo-cartelera {
+  font-size: 28px;
+  font-weight: bold;
+  color: #222;
+  margin-bottom: 30px;
+  border-left: 5px solid #e50914;
+  padding-left: 15px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+
+/* Tarjeta de película */
+.movie-card {
+  background-color: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.movie-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Imagen */
+.movie-card img {
+  width: 100%;
+  height: 270px;
+  object-fit: cover;
+}
+
+/* Contenedor de información */
+.movie-info {
+  padding: 15px;
+  text-align: center;
+}
+
+/* Título */
+.movie-info h2 {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  color: #222;
+}
+
+/* Descripción */
+.movie-info .description {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 8px;
+}
+
+/* Duración */
+.movie-info .duration {
+  font-size: 13px;
+  color: #777;
+  background-color: #eee;
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 20px;
+}
+
+
+/* ------ Slider -----*/
+
+.slider {
+  width: 100%;
+  overflow: hidden;
+  padding: 50px 0;
+  background-color: #000;
+  position: relative;
+}
+
+.slider-track {
+  display: flex;
+  transition: transform 0.8s ease;
+  will-change: transform;
+}
+
+.slide {
+  min-width: 300px;
+  margin: 0 10px;
+  transition: transform 0.5s ease, opacity 0.5s ease;
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.slide img {
+  width: 100%;
+  height: 450px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.slide h3,
+.slide p {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  color: #fff;
+  background: rgba(0, 0, 0, 0.7);
+  padding: 5px 10px;
+  border-radius: 8px;
+  margin: 0;
+  text-align: center;
+}
+
+.slide h3 {
+  bottom: 35px;
+  font-size: 20px;
+}
+
+.slide p {
+  bottom: 10px;
+  font-size: 14px;
+}
+
+/* Resaltar slide activo */
+.slide.active {
+  transform: scale(1.2);
+  z-index: 2;
+}
+
+
+
+/* Footer */
+
+.footer {
+  background-color: #f8f9fa;
+  padding: 30px 20px;
+  text-align: center;
+  color: #3a3a3a;
+  font-family: Arial, sans-serif;
+}
+
+.footer-container {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 20px;
+}
+
+.footer-logo img {
+  height: 30px;
+}
+
+.footer-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  font-size: 14px;
+}
+
+.footer-links a {
+  color: #003764;
+  text-decoration: none;
+}
+
+.footer-links span {
+  color: #888;
+}
+
+.footer-social {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 14px;
+}
+
+.footer-social a img {
+  width: 20px;
+  margin: 5px;
+}
+
+.footer-copy {
+  margin-top: 20px;
+  font-size: 13px;
+  color: #666;
+}
+
+/*
+ESTILOS GENERO
+*/
+
+.categoria {
+  padding: 50px 20px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.categoria h2 {
+  font-size: 28px;
+  margin-bottom: 30px;
+}
+
+.categoria-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.pelicula-card {
+  background: #fff;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  overflow: hidden;
+  transition: transform 0.3s ease;
+}
+
+.pelicula-card:hover {
+  transform: translateY(-5px);
+}
+
+.pelicula-card img {
+  width: 100%;
+  height: 350px;
+  object-fit: cover;
+}
+
+.pelicula-info {
+  padding: 15px;
+}
+
+.pelicula-info h3 {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.pelicula-info p {
+  font-size: 14px;
+  margin: 3px 0;
+}
+
+.categoria-ver-todo {
+  text-align: center;
+  margin-top: 30px;
+}
+
+.categoria-ver-todo button {
+  background-color: #003764;
+  color: #fff;
+  border: none;
+  padding: 10px 20px;
+  font-size: 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.categoria-ver-todo button:hover {
+  background-color: #001f47;
+}

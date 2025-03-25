@@ -1,0 +1,255 @@
+// Slider optimizado con rotación circular
+document.addEventListener('DOMContentLoaded', function () {
+  const sliderTrack = document.querySelector('.slider-track');
+  const originalSlides = Array.from(document.querySelectorAll('.slide'));
+  const totalOriginalSlides = originalSlides.length;
+
+  // Asegurarnos de tener al menos 5 slides
+  if (totalOriginalSlides < 5) {
+    console.error('Se necesitan al menos 5 slides para un funcionamiento óptimo');
+    return;
+  }
+
+  // Configuración
+  const visibleSlides = 5;
+  const autoSlideDelay = 4000;
+  let slideWidth = 0;
+  let isDragging = false;
+  let startX, currentTranslate, prevTranslate = 0;
+  let currentIndex = 0;
+  let animationID = 0;
+  let autoSlideInterval;
+
+  // Preparar el slider duplicando slides para efecto circular continuo
+  function setupSlider() {
+    // Limpiar slider
+    sliderTrack.innerHTML = '';
+
+    // Duplicar slides suficientes veces para garantizar rotación continua
+    // Duplicamos 3 veces (original + 2 copias) para asegurar slides suficientes en ambas direcciones
+    for (let i = 0; i < 3; i++) {
+      originalSlides.forEach(slide => {
+        const clone = slide.cloneNode(true);
+        // Necesitamos una clase para identificar duplicados del mismo slide original
+        clone.setAttribute('data-original-index', originalSlides.indexOf(slide));
+        sliderTrack.appendChild(clone);
+      });
+    }
+
+    // Calcular ancho de slide (incluyendo margen)
+    const firstSlide = sliderTrack.querySelector('.slide');
+    slideWidth = firstSlide.offsetWidth +
+      parseInt(getComputedStyle(firstSlide).marginLeft) * 2;
+
+    // Posicionar en el conjunto del medio para permitir movimiento en ambas direcciones
+    setInitialPosition();
+
+    // Iniciar autoplay
+    startAutoSlide();
+
+    // Configurar interacción
+    setupSlideEvents();
+  }
+
+  // Posicionar el slider para mostrar el conjunto del medio
+  function setInitialPosition() {
+    // Posicionar en el conjunto del medio (después de la primera serie de slides)
+    currentIndex = totalOriginalSlides;
+    updateSliderPosition(false);
+
+    // Activar slide central
+    updateActiveState();
+  }
+
+  // Actualizar la posición del slider
+  function updateSliderPosition(withAnimation = true) {
+    if (withAnimation) {
+      sliderTrack.style.transition = 'transform 0.5s ease';
+    } else {
+      sliderTrack.style.transition = 'none';
+    }
+
+    const offset = -currentIndex * slideWidth;
+    prevTranslate = offset;
+    currentTranslate = offset;
+    sliderTrack.style.transform = `translateX(${offset}px)`;
+
+    // Si nos acercamos al final del conjunto, saltar al conjunto equivalente sin animación
+    if (currentIndex <= 2) {
+      // Cerca del inicio, saltar al conjunto central
+      setTimeout(() => {
+        currentIndex += totalOriginalSlides;
+        updateSliderPosition(false);
+      }, withAnimation ? 500 : 0);
+    } else if (currentIndex >= totalOriginalSlides * 2 - 3) {
+      // Cerca del final, saltar al conjunto central
+      setTimeout(() => {
+        currentIndex -= totalOriginalSlides;
+        updateSliderPosition(false);
+      }, withAnimation ? 500 : 0);
+    }
+  }
+
+  // Actualizar qué slide debe estar activo
+  function updateActiveState() {
+    const allSlides = sliderTrack.querySelectorAll('.slide');
+    const middleIndex = Math.floor(visibleSlides / 2);
+
+    allSlides.forEach((slide, index) => {
+      // Desactivar todos primero
+      slide.classList.remove('active');
+
+      // Ajustar opacidad basado en la distancia del centro
+      const relativePosition = index - currentIndex;
+      const distanceFromCenter = Math.abs(relativePosition - middleIndex);
+
+      if (relativePosition >= 0 && relativePosition < visibleSlides) {
+        // Solo para slides visibles
+        const opacity = 1 - (distanceFromCenter * 0.15);
+        slide.style.opacity = Math.max(opacity, 0.6);
+
+        // El slide central debe estar activo
+        if (relativePosition === middleIndex) {
+          slide.classList.add('active');
+        }
+      } else {
+        // Slides no visibles
+        slide.style.opacity = 0;
+      }
+    });
+  }
+
+  // Avanzar un slide
+  function nextSlide() {
+    currentIndex++;
+    updateSliderPosition();
+    updateActiveState();
+  }
+
+  // Retroceder un slide
+  function prevSlide() {
+    currentIndex--;
+    updateSliderPosition();
+    updateActiveState();
+  }
+
+  // Iniciar autoplay
+  function startAutoSlide() {
+    clearInterval(autoSlideInterval);
+    autoSlideInterval = setInterval(nextSlide, autoSlideDelay);
+  }
+
+  // Pausar autoplay
+  function pauseAutoSlide() {
+    clearInterval(autoSlideInterval);
+  }
+
+  // Configurar eventos de interacción
+  function setupSlideEvents() {
+    // Click en slides para moverlos al centro
+    sliderTrack.addEventListener('click', function (e) {
+      if (isDragging) return; // Ignorar clicks durante arrastre
+
+      const clickedSlide = e.target.closest('.slide');
+      if (!clickedSlide) return;
+
+      const slides = Array.from(sliderTrack.querySelectorAll('.slide'));
+      const clickedIndex = slides.indexOf(clickedSlide);
+      const middleIndex = currentIndex + Math.floor(visibleSlides / 2);
+
+      if (clickedIndex !== middleIndex) {
+        // Mover para centrar el slide clickeado
+        currentIndex += (clickedIndex - middleIndex);
+        updateSliderPosition();
+        updateActiveState();
+
+        // Reiniciar autoplay
+        startAutoSlide();
+      }
+    });
+
+    // Eventos de arrastre (touch/mouse)
+    sliderTrack.addEventListener('mousedown', touchStart);
+    sliderTrack.addEventListener('touchstart', touchStart);
+    sliderTrack.addEventListener('mouseup', touchEnd);
+    sliderTrack.addEventListener('touchend', touchEnd);
+    sliderTrack.addEventListener('mouseleave', touchEnd);
+    sliderTrack.addEventListener('mousemove', touchMove);
+    sliderTrack.addEventListener('touchmove', touchMove);
+
+    // Pausar/reanudar autoplay al interactuar
+    sliderTrack.addEventListener('mouseenter', pauseAutoSlide);
+    sliderTrack.addEventListener('mouseleave', startAutoSlide);
+
+    // Evitar comportamiento de arrastre nativo
+    sliderTrack.addEventListener('dragstart', e => e.preventDefault());
+  }
+
+  // Eventos touch/mouse
+  function touchStart(e) {
+    pauseAutoSlide();
+    isDragging = true;
+    startX = getPositionX(e);
+
+    animationID = requestAnimationFrame(animation);
+    sliderTrack.style.transition = 'none';
+    sliderTrack.style.cursor = 'grabbing';
+  }
+
+  function touchMove(e) {
+    if (!isDragging) return;
+
+    const currentPosition = getPositionX(e);
+    currentTranslate = prevTranslate + currentPosition - startX;
+  }
+
+  function touchEnd() {
+    isDragging = false;
+    cancelAnimationFrame(animationID);
+    sliderTrack.style.cursor = 'grab';
+
+    // Determinar si movernos basado en la distancia arrastrada
+    const movedBy = currentTranslate - prevTranslate;
+
+    if (movedBy < -slideWidth / 3) {
+      currentIndex++;
+    } else if (movedBy > slideWidth / 3) {
+      currentIndex--;
+    }
+
+    updateSliderPosition();
+    updateActiveState();
+    startAutoSlide();
+  }
+
+  function getPositionX(e) {
+    return e.type.includes('mouse') ? e.pageX : e.touches[0].clientX;
+  }
+
+  function animation() {
+    if (isDragging) {
+      setSliderPosition();
+      requestAnimationFrame(animation);
+    }
+  }
+
+  function setSliderPosition() {
+    sliderTrack.style.transform = `translateX(${currentTranslate}px)`;
+  }
+
+  // Ajuste al cambio de tamaño de ventana
+  window.addEventListener('resize', function () {
+    const firstSlide = sliderTrack.querySelector('.slide');
+    const newSlideWidth = firstSlide.offsetWidth +
+      parseInt(getComputedStyle(firstSlide).marginLeft) * 2;
+
+    if (newSlideWidth !== slideWidth) {
+      slideWidth = newSlideWidth;
+      updateSliderPosition(false);
+      updateActiveState();
+    }
+  });
+
+  // Inicializar slider
+  setupSlider();
+});

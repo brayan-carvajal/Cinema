@@ -1,0 +1,92 @@
+// Slider
+const track = document.querySelector('.slider-track');
+let slides = Array.from(document.querySelectorAll('.slide'));
+let currentIndex = 0;
+const visibleSlides = 5;
+const autoSlideInterval = 5000;
+const transitionTime = 500;
+
+// Clona los primeros y últimos slides para efecto loop suave
+function cloneSlides() {
+  const slidesToCloneStart = slides.slice(-visibleSlides);
+  const slidesToCloneEnd = slides.slice(0, visibleSlides);
+
+  slidesToCloneStart.forEach(slide => {
+    const clone = slide.cloneNode(true);
+    clone.classList.add('clone');
+    track.prepend(clone);
+  });
+
+  slidesToCloneEnd.forEach(slide => {
+    const clone = slide.cloneNode(true);
+    clone.classList.add('clone');
+    track.append(clone);
+  });
+
+  slides = Array.from(document.querySelectorAll('.slide'));
+}
+
+// Centrar el slide actual
+function updateSlider(animate = true) {
+  const slideWidth = slides[0].offsetWidth + 20; // 20px de margen lateral
+  const offset = (slideWidth * (currentIndex + visibleSlides)) - ((window.innerWidth / 2) - (slideWidth / 2));
+
+  if (animate) {
+    track.style.transition = `transform ${transitionTime}ms ease`;
+  } else {
+    track.style.transition = 'none';
+  }
+
+  track.style.transform = `translateX(${-offset}px)`;
+
+  slides.forEach((slide, index) => {
+    slide.classList.toggle('active', index === currentIndex + visibleSlides);
+  });
+}
+
+// Reset de posición al pasar los clones (para loop perfecto)
+function checkLoop() {
+  if (currentIndex >= slides.length - visibleSlides * 2) {
+    currentIndex = 0;
+    setTimeout(() => updateSlider(false), transitionTime);
+  } else if (currentIndex < 0) {
+    currentIndex = slides.length - visibleSlides * 2 - 1;
+    setTimeout(() => updateSlider(false), transitionTime);
+  }
+}
+
+// Avanzar automáticamente
+function nextSlide() {
+  currentIndex++;
+  updateSlider();
+  checkLoop();
+}
+
+// Retroceder
+function prevSlide() {
+  currentIndex--;
+  updateSlider();
+  checkLoop();
+}
+
+// Clic para centrar cualquier película
+function setupClickEvents() {
+  slides.forEach((slide, index) => {
+    slide.addEventListener('click', () => {
+      const middleIndex = currentIndex + visibleSlides;
+      const diff = index - middleIndex;
+      currentIndex += diff;
+      updateSlider();
+      checkLoop();
+    });
+  });
+}
+
+// Reajustar si cambia el tamaño de pantalla
+window.addEventListener('resize', () => updateSlider(false));
+
+// Inicializar slider
+cloneSlides();
+setupClickEvents();
+updateSlider(false);
+setInterval(nextSlide, autoSlideInterval);
